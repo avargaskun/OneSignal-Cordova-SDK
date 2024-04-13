@@ -99,7 +99,19 @@ void processForegroundLifecycleListener(OSNotificationWillDisplayEvent* _notif) 
 
 void processNotificationClicked(OSNotificationClickEvent* event) {
     if (notificationClickedCallbackId != nil) {
-        successCallback(notificationClickedCallbackId, [event jsonRepresentation]);
+        NSDictionary* jsonEventOriginal = [event jsonRepresentation];
+        NSDictionary* jsonResultOriginal = [jsonEventOriginal objectForKey:@"result"];
+        if (jsonResultOriginal && [jsonResultOriginal objectForKey:@"actionID"]) {
+            NSLog(@"Fixing schema for NotificationClickResult, replacing actionID with actionId");
+            NSMutableDictionary* jsonEvent = [jsonEventOriginal mutableCopy];
+            NSMutableDictionary* jsonResult = [jsonResultOriginal mutableCopy];
+            id value = [jsonResult objectForKey:@"actionID"];
+            [jsonResult setObject:value forKey: @"actionId"];
+            [jsonEvent setObject:jsonResult forKey:@"result"];
+            jsonEventOriginal = jsonEvent;
+        }
+
+        successCallback(notificationClickedCallbackId, jsonEventOriginal);
         actionNotification = nil;
     }
 }
