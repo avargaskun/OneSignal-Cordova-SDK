@@ -138,6 +138,10 @@ public class OneSignalPush extends CordovaPlugin implements INotificationLifecyc
 
   private static final String ENTER_LIVE_ACTIVITY = "enterLiveActivity";
   private static final String EXIT_LIVE_ACTIVITY = "exitLiveActivity";
+  private static final String SET_PUSH_TO_START_TOKEN = "setPushToStartToken";
+  private static final String REMOVE_PUSH_TO_START_TOKEN = "removePushToStartToken";
+  private static final String SETUP_DEFAULT_ACTIVITY = "setupDefaultLiveActivity";
+  private static final String START_DEFAULT_LIVE_ACTIVITY = "startDefaultLiveActivity";
 
   private static final HashMap<String, INotificationWillDisplayEvent> notificationWillDisplayCache = new HashMap<>();
   private static final HashMap<String, INotificationWillDisplayEvent> preventDefaultCache = new HashMap<>();
@@ -232,9 +236,17 @@ public class OneSignalPush extends CordovaPlugin implements INotificationLifecyc
    * N O T I F I C A T I O N    C L I C K    L I S T E N E R
    */
 
+  private boolean hasAddedNotificationClickListener = false;
+
   public boolean addNotificationClickListener(CallbackContext callbackContext) {
-    jsNotificationClickedCallback = callbackContext;
-    return true;
+      if (this.hasAddedNotificationClickListener) {
+        return false;
+      }
+
+      OneSignal.getNotifications().addClickListener(this);
+      jsNotificationClickedCallback = callbackContext;
+      hasAddedNotificationClickListener = true;
+      return true;
   }
 
   @Override
@@ -348,7 +360,7 @@ public class OneSignalPush extends CordovaPlugin implements INotificationLifecyc
 
   public boolean init(CallbackContext callbackContext, JSONArray data) {
     OneSignalWrapper.setSdkType("cordova");  
-    OneSignalWrapper.setSdkVersion("050101");
+    OneSignalWrapper.setSdkVersion("050207");
     try {
       String appId = data.getString(0);
       OneSignal.initWithContext(this.cordova.getActivity(), appId);
@@ -357,7 +369,6 @@ public class OneSignalPush extends CordovaPlugin implements INotificationLifecyc
       OneSignal.getInAppMessages().addLifecycleListener(this);
       OneSignal.getInAppMessages().addClickListener(this);
       OneSignal.getNotifications().addForegroundLifecycleListener(this);
-      OneSignal.getNotifications().addClickListener(this);
 
       CallbackHelper.callbackSuccessBoolean(callbackContext, true);
       return true;
@@ -602,6 +613,22 @@ public class OneSignalPush extends CordovaPlugin implements INotificationLifecyc
 
       case EXIT_LIVE_ACTIVITY:
         result = OneSignalController.exitLiveActivity();
+        break;
+
+      case SET_PUSH_TO_START_TOKEN:
+        result = OneSignalController.setPushToStartToken();
+        break;
+
+      case REMOVE_PUSH_TO_START_TOKEN:
+        result = OneSignalController.removePushToStartToken();
+        break;
+
+      case SETUP_DEFAULT_ACTIVITY:
+        result = OneSignalController.setupDefaultLiveActivity();
+        break;
+
+      case START_DEFAULT_LIVE_ACTIVITY:
+        result = OneSignalController.startDefaultLiveActivity();
         break;
 
       default:
