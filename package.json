@@ -69,6 +69,7 @@
   },
   "homepage": "https://github.com/onesignal/OneSignal-Cordova-SDK#readme",
   "devDependencies": {
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "@types/cordova": "^11.0.3"
   }
 }
