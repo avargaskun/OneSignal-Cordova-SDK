@@ -2,6 +2,7 @@ import java.nio.file.Files
 
 // Required for Android Support Library 26.0.0+ and Google Play services 11.+
 repositories {
+  mavenLocal()
   maven { url 'https://maven.google.com' }
 }
 
